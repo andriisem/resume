@@ -1,0 +1,36 @@
+name: Build PDF and Commit
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and Run Docker Container
+      run: |
+        docker build -t my-pdf-generator .
+        docker run -v $(pwd):/usr/src/app my-pdf-generator
+      working-directory: ${{ github.workspace }}
+
+    - name: Commit PDF to Git
+      run: |
+        git config user.email "semko.andrey.i@gmail.com"
+        git config user.name "Andrii S"
+        git add AndriiSemko.pdf
+        git commit -m "Update PDF"
+        git push
+      env:
+        GIT_AUTHOR_NAME: Andrii S
+        GIT_AUTHOR_EMAIL: semko.andrey.i@gmail.com
+        GIT_COMMITTER_NAME: Andrii S
+        GIT_COMMITTER_EMAIL: semko.andrey.i@gmail.com
